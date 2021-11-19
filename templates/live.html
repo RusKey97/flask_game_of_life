@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+  
+
+{% block app_content %}
+    
+
+    
+    <a href="../" class="btn btn-warning home">На главную</a>
+    <a href="../live" class="btn btn-info refresh">Создать новую жизнь</a>
+
+    
+    <!-- 
+        тестовая кнопка для контроля обновления через ajax
+        <button id=but class="rf">Click me!</button> -->
+    
+    <table id="table" class="world">
+        {% for i in range(life.world|length) %}
+        <tr>
+            {% for j in range(life.world[i]|length) %}
+                {% if life.world[i][j] %}
+                    <td class="ceil living-cell"></td>
+                {% elif life.world[i][j] == 0 and life.old_world[i][j]%}
+                    <td class="ceil dead-cell"></td>
+                {% else %}
+                    <td class="ceil"></td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <div class="counter" id="counter">{{ life.counter }}</div>
+    
+    
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    
+    <!---Через перезагрузку страницы - менее плавно-->
+    <!---
+    
+    Через перезагрузку страницы - менее плавно
+    <script>
+        setInterval(() => window.location.reload(), 1000);
+    </script>
+    -->
+    
+    <!---Через ajax более приятный глазу-->
+
+    <script type="text/javascript">
+        
+        // автоматически
+        $(document).ready(function() {
+            setInterval(refresher, 1000);
+        });
+        
+        function refresher(){
+        $.ajax({
+                    url: '/live',
+                    method: "GET",
+                    dataType: 'html',
+                    success: function(response) {
+                        var htmlObject = $(response); // jquery call
+                        document.getElementById('counter').innerHTML = htmlObject.find('#counter')[0].innerHTML; // обновление счётчика
+                        document.getElementById('table').innerHTML = htmlObject.find('#table')[0].innerHTML;  // обновление таблицы
+                    },
+                    error: function(xhr, status, error) {
+                        alert(xhr.responseText);
+                        alert(error);
+                    }
+                    
+                    });
+        }
+
+        /*
+        // для контроля через кнопку
+        $(document).ready(function () {
+            $(document).on('click', '.rf', function () {
+                $.ajax({
+                    url: '/live',
+                    method: "GET",
+                    dataType: 'html',
+                    success: function(response) {
+                        var htmlObject = $(response); // jquery call
+                        document.getElementById('counter').innerHTML = htmlObject.find('#counter')[0].innerHTML; // обновление счётчика
+                        document.getElementById('table').innerHTML = htmlObject.find('#table')[0].innerHTML;  // обновление таблицы
+                    },
+                    error: function(xhr, status, error) {
+                        alert(xhr.responseText);
+                        alert(error);
+                    }
+                    
+                    });
+                });
+        });
+        */
+    </script>
+
+
+{% endblock %}
+
+
